@@ -1,0 +1,9 @@
+h1 All Users
+
+ul
+  - session[:allUsers].each do |user|
+    li 
+      p = user['username']
+
+      form action="/users/delete/#{user['id']}" method="POST"
+        input type="submit" value="Delete user"

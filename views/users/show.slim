@@ -1,0 +1,7 @@
+h1 All Travels
+
+
+ol
+  - travels.each do |travels|
+    li 
+      a href="travels/#{travels['travelId']}" #{travels["Title"]}
