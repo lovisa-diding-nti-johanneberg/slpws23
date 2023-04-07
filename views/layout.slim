@@ -12,7 +12,7 @@ html lang="en"
       a href="/" Home
       a href="/travels" View all
       - if session[:id]
-        a.link href='/users/:id' Min sida
+        a.link href='/users/#{session[:id]}' Min sida
         a href ="/logout" Log out
       - else 
         a href="/login" Log in

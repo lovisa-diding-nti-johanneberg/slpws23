@@ -4,6 +4,7 @@ require 'sqlite3'
 require 'sinatra/reloader'
 require 'pp'
 require 'BCrypt'
+require_relative './model.rb'
 
 enable :sessions
 
@@ -77,7 +78,31 @@ post('/users/delete/:id') do
 end
 
 get('/users/:id') do
-    id = params[:id].to_i
+    id = params[:id]
+    result = db.execute("SELECT * FROM friends WHERE friend1Id = ? OR friend2Id = ?",id,id)
+    slim(:"/users/user")
+end
+
+post('/change_username/:id') do
+    id = params[:id]
+    username = params[:newUsername]
+    db.execute("UPDATE users SET username = ? WHERE id = ?",username,id)
+    redirect('/users/#{session[:id]}')
+end
+
+post('/change_password/:id') do
+    id = params[:id]
+    password = params[:newPassword]
+    db.execute("UPDATE users SET password = ? WHERE id = ?",password,id)
+    redirect('/users/#{session[:id]}')
+end
+
+post('/add_friend/:id') do
+    id = params[:id]
+    friend = params[:friend]
+    friendId = db.execute("SELECT id FROM users WHERE username = ?",friend).first
+    db.execute("INSERT INTO friends (friend1Id,friend2Id) VALUES (?,?)",id,friendId)
+    redirect('/users/#{session[:id]}')
 end
 
 get('/travels') do
