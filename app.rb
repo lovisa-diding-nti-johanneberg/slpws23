@@ -105,6 +105,18 @@ post('/add_friend/:id') do
     redirect('/users/#{session[:id]}')
 end
 
+get('/places') do
+    result = db.execute("SELECT * FROM places")
+    session[:places] = result
+    slim(:"/places/index")
+end
+
+post('/places/new') do
+    newPlace = params[:newPlace]
+    db.execute("INSERT INTO places (place) VALUES (?)",newPlace)
+    redirect('/places')
+end
+
 get('/travels') do
     result = db.execute("SELECT * FROM travels")
     session[:travels] = result

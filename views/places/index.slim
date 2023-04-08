@@ -1,0 +1,12 @@
+h1 All Places
+
+h3 Add Place
+
+form action="/places/new" method="post"
+    input name="newPlace" placeholder="Enter place" type="text"
+    input type="submit" value="Submit!"
+
+ol
+  - session[:places].each do |places|
+    li 
+      a href="places/#{places['placeId']}" #{places["place"]}
