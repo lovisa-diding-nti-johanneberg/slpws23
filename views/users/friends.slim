@@ -1,0 +1,4 @@
+ul
+- session[:friendsTravels].each do |travel|
+        ol
+        a href="/travels/#{travel['id']}" #{travel['from_id']}  #{travel['to_id']} #{travel['time']}

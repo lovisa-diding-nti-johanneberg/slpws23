@@ -10,9 +10,10 @@ html lang="en"
 
     nav
       a href="/" Home
-      a href="/travels" View all
+      a href="/travels" View all travels
       - if session[:id]
         a.link href='/users/#{session[:id]}' Min sida
+        a.link href='/users/friends/#{session[:id]}' Friends Travels
         a href ="/logout" Log out
       - else 
         a href="/login" Log in

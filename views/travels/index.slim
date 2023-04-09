@@ -1,6 +1,6 @@
 h1 All Travels
 
 ol
-  - travels.each do |travels|
+  - session[:travels].each do |travel|
     li 
-      a href="travels/#{travels['travelId']}" #{travels["Title"]}
+      a href="travels/#{travel['id']}" #{travel['from_id']}  #{travel['to_id']} #{travel['time']}

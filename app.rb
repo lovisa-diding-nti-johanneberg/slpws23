@@ -12,13 +12,19 @@ enable :sessions
 db = SQLite3::Database.new("db/chinook.db")
 db.results_as_hash = true
 
+before do
+    if (session[:id] == nil) && (request.path_info != '/' && request.path_info != '/login' && request.path_info != '/login_form' && request.path_info != '/register' && request.path_info != '/users/new')
+        session[:error] = "Log in to access this page."
+        redirect('/error')
+    end
+end
+
+get('/error') do
+    slim(:error)
+end
+
 get('/')  do
     slim(:index)
-  end 
-
-get('/mypage') do
-
-    slim(:mypage)  
 end
 
 get('/logout') do
@@ -78,8 +84,11 @@ post('/users/delete/:id') do
 end
 
 get('/users/:id') do
-    id = params[:id]
-    result = db.execute("SELECT * FROM friends WHERE friend1Id = ? OR friend2Id = ?",id,id)
+    id = params[:id].to_i
+    session[:friends] = db.execute("SELECT users.id, users.username FROM users INNER JOIN friends ON users.id = friends.friend2 WHERE friend1 = ?",id)
+    session[:userTravels] = db.execute("SELECT * FROM travels WHERE creator_id = ?",id)
+    session[:placeNames] = db.execute("SELECT place FROM places")
+    session[:currentUser] = id
     slim(:"/users/user")
 end
 
@@ -98,15 +107,21 @@ post('/change_password/:id') do
 end
 
 post('/add_friend/:id') do
-    id = params[:id]
+    id = params[:id].to_i
     friend = params[:friend]
     friendId = db.execute("SELECT id FROM users WHERE username = ?",friend).first
-    db.execute("INSERT INTO friends (friend1Id,friend2Id) VALUES (?,?)",id,friendId)
+    db.execute("INSERT INTO friends (friend1,friend2) VALUES (?,?)",id,friendId['id'])
     redirect('/users/#{session[:id]}')
 end
 
+get('/users/friends/:id') do
+    id = params[:id].to_i
+    session[:friendsTravels] = db.execute("SELECT travels.* FROM (users INNER JOIN friends ON users.id = friends.friend2) INNER JOIN travels ON users.id = travels.creator_id WHERE friends.friend1 = ?",id)
+    slim(:"users/friends")
+end
+
 get('/places') do
-    result = db.execute("SELECT * FROM places")
+    result = getNamesOfPlaces()
     session[:places] = result
     slim(:"/places/index")
 end
@@ -123,11 +138,12 @@ get('/travels') do
     slim(:"/travels/index")
 end
 
-post('/travels/new') do
-    session[:from] = params[:from]
-    session[:to] = params[:to]
-    session[:time] = params[:time]
-    #result = db.execute("INSERT INTO travels (creator_id, from_id, to_id, time) VALUES (#{session[:from]}, #{session[:to]},#{session[:time]}")
+post('/travels/new/:id') do
+    id = params[:id]
+    from = params[:from]
+    to = params[:to]
+    time= params[:time]
+    db.execute("INSERT INTO travels (creator_id, from_id, to_id, time) VALUES (?,?,?,?)",id,from,to,time)
 
-    redirect('travels/index')
+    redirect('/travels')
 end
